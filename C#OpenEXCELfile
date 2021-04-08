@@ -1,0 +1,196 @@
+ 
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop.Excel;
+using System.IO;
+using System.Reflection;
+using System.Xml;
+
+
+namespace WindowsFormsApplication1
+{
+    public partial class SuccessForm : System.Windows.Forms.Form
+    {
+
+        public static String YongHuMing10;
+        public static String OrderNumber10; //订单号
+
+
+        public static string FileOrderPath10;//订单路径
+        public static string FileSavePath10;//保存文件路径
+        public static string SysConfigPath10;//系统配置文件读取路径
+        public static string SysConfigSavePathXml10;//文件路径xml保存的文件路径
+        
+
+        public static string temp;//文件路径xml保存的文件路径
+        public static int rowsint; //取得总记录行数   (包括标题列)
+        public static int columnsint; //取得总记录行数   (包括标题列)
+        public SuccessForm()
+        {
+            InitializeComponent();
+            INIT_SETUP();//初始化
+        }
+
+
+        private void OpenExcel(string strFileName)//打开EXCEL，获取路径，传递参数路径
+        {
+            int  column=1,row;//定义行标和列标
+            Microsoft.Office.Interop.Excel.Application NewWorkApp = new Microsoft.Office.Interop.Excel.Application();//引用函数
+            object Missing = System.Reflection.Missing.Value;
+
+            if (NewWorkApp == null)
+            {
+                MessageBox.Show("<script>alert('Can't access excel')</script>");
+            }
+
+            else
+            {
+                NewWorkApp.Visible = true;//EXCEL是否可见
+                NewWorkApp.UserControl = true;
+                // 以只读的形式打开EXCEL文件
+                Workbook workbook = NewWorkApp.Application.Workbooks.Open(strFileName, Missing, true, Missing, Missing, Missing, Missing, Missing, Missing, true, Missing, Missing, Missing, Missing, Missing);
+                //取得第一个工作薄
+
+                //if (worksheet.Name == "scret01")
+                //{
+                //  MessageBox.Show("SHEET01已经打开");
+                // }
+
+
+                Worksheet worksheet = (Worksheet)workbook.Worksheets.get_Item(1);
+                //取得总记录行数   (包括标题列)
+                rowsint = worksheet.UsedRange.Cells.Rows.Count; //得到行数
+                columnsint = worksheet.UsedRange.Cells.Columns.Count;//得到列数
+
+
+                Worksheet workSheet = (Worksheet)workbook.Worksheets[1];
+
+
+
+
+                //取得数据范围区域 (不包括标题列) 
+                // Range rng1 = worksheet.Cells.get_Range("B2", "B" + rowsint);   //item
+                /*--------------------------------设置格式----------------------------------*/
+                //NewWorkSheet = (Microsoft.Office.Interop.Excel.Worksheet)NewWorkBook.Sheets[1];
+                //object MissingValue = System.Reflection.Missing.Value;
+
+                //worksheet.get_Range("A1", Missing).ColumnWidth = 20;
+                Range WS = (Range)worksheet.get_Range("I1", "J" + rowsint); //操作区域
+                //WS.Merge(0);//单元格合并动作
+                WS.Borders.LineStyle = Microsoft.Office.Interop.Excel.XlLineStyle.xlContinuous; //设置整个数据区边框为实线
+                WS.Borders.Weight = 3;//边框线的粗细
+                WS.Font.Bold = true; //设置字体为粗体
+                WS.Font.Size = 14; //设置字体大小
+                //WS.EntireColumn.AutoFit();//自动调整列宽
+                WS.EntireColumn.ColumnWidth = 20;
+                WS.EntireRow.AutoFit();//自动调整行高
+                WS.Interior.Color = System.Drawing.ColorTranslator.ToOle(Color.Green);//设置背景色
+                WS.HorizontalAlignment = Microsoft.Office.Interop.Excel.XlHAlign.xlHAlignCenter;     // 文本水平居中方式
+                WS.VerticalAlignment = Microsoft.Office.Interop.Excel.XlHAlign.xlHAlignCenter;     //文本垂直居中方式
+                Range WS01 = (Range)worksheet.get_Range("I1", "J1"); //操作区域
+                WS01.Merge(0);//单元格合并动作
+
+                worksheet.Cells[1, 9] = "AutoConfirm"; //标题单元格
+
+
+                /*--------------------------写入数据——————————————————————————————*/
+
+
+                for (row = 1; row < rowsint; row++)
+                {
+                    temp = ((Range)workSheet.Cells[row, column]).Text.ToString();
+                    
+                    if (temp == OrderNumber10)
+                    {
+                       
+                        // for (int i = 1; i < rowsint + 1; i++)
+                        // {
+                        YanShi();
+                            worksheet.Cells[row+1, 9] = label2.Text;
+                            DateTime time = DateTime.Now;
+                            string Datetime = time.ToString("yyyy-MM-dd HH:mm:ss:ffff");
+                            worksheet.Cells[row+1, 10] = Datetime;
+                        //}
+                    }
+                }
+
+                 workbook.Saved = true;
+                workbook.SaveAs(strFileName);    //excel文件保存，工作薄保存， 并释放
+                worksheet = null;
+                workbook = null;
+                NewWorkApp.Quit();            }
+
+            DIsplayAndDo();//处理函数
+
+        }
+
+        private void DIsplayAndDo()
+        {
+            
+
+            MessageBox.Show("确认订单已经完成！！请输入下一个订单号！！");
+        }
+        private void YanShi()
+        {
+
+            for(int i=0;i<1000;i++)
+                for (int j = 0; j < 1000; j++)
+                {
+
+                }
+
+
+        }
+
+
+        private void INIT_SETUP()//初始化
+        {
+            label2.Text = MainLoginForm.YongHuMing;//获取当前登录用户名
+            FileOrderPath10 = MainLoginForm.FileOrderPath00;//获取文件地址
+           
+        }
+
+        private void SuccessForm_Load(object sender, EventArgs e)
+        {
+            this.ControlBox = false;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void button3_Click(object sender, EventArgs e)//确定订单
+        {
+             
+             YongHuMing10 = MainLoginForm.YongHuMing;
+            OrderNumber10 = textBox1.Text;
+            MessageBox.Show("确认订单！" + OrderNumber10);
+            OpenExcel(FileOrderPath10);
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
+
