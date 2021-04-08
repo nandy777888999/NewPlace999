@@ -1,0 +1,126 @@
+Zhujie01代码
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApplication13_jiemian
+{
+    public partial class ZHUJIE01 : Form
+    {
+        public ZHUJIE01()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            CANSHU02 canshu02Form =new CANSHU02();
+            canshu02Form.Show();
+          
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            
+        }
+    }
+}
+LoginForm03代码
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApplication13_jiemian
+{
+    public partial class LoginForm03 : Form
+    {
+        int logintimes = 0;
+        public LoginForm03()
+        {
+            InitializeComponent();
+        }
+
+        private void LoginForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (logintimes != 3)
+            {
+                if (Username001.Text == "nandy" && Password001.Text == "123456")
+                {
+                    MessageBox.Show("登陆成功！");
+                    this.Close();
+                }
+                else
+                {
+                    MessageBox.Show("用户名和密码输入错误，请重新输入！");
+                    logintimes = logintimes + 1;
+                }
+                if(logintimes == 3)
+                {
+                    MessageBox.Show("输入错误次数达到3次，即将锁定，请联系解锁！");
+                    this.Close();
+                }
+            }
+        }
+
+      
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+    }
+}
+
+
+Sanshu02代码
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace WindowsFormsApplication13_jiemian
+{
+    public partial class CANSHU02 : Form
+    {
+        public CANSHU02()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            //MessageBox.Show("参数设置需要管理权限，请先登录，确定您的管理权限！");
+            LoginForm03 loginForm01 = new LoginForm03();
+            loginForm01.ShowDialog();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
+
+        }
+    }
+}       
