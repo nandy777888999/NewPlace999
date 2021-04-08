@@ -1,0 +1,183 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop.Excel;
+using System.IO;
+using System.Reflection;
+using System.Xml;
+
+namespace WindowsFormsApplication1
+{
+    public partial class FileChangeForm1 : Form
+    {
+        public static string FileOrderPath;//订单路径
+        public static string FileSavePath;//保存路径文件夹
+        public static string SysConfigPath;//系统保存全路径
+        public static string SysConfigSavePathXml;//path的Xml保存路径
+        string ArreyIndex01;
+        string ArreyIndex02;
+        string ArreyIndex03;
+        public FileChangeForm1()
+        {
+            InitializeComponent();
+            SysConfigSavePathXml = "D:/Program Files/OrderSystemFile/SysConfigSavePathXml.xml";
+            ReadXMLConfigFile_INIT_07();
+          
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            this.openFileDialog11.ShowDialog();
+            //选择文件后，用openFileDialog1的FileName属性获取文件的绝对路径
+
+
+            /*--------------订单文件读取文件路径---------------*/
+            FilepathtextBox1.Text = this.openFileDialog11.FileName;
+            FileOrderPath = FilepathtextBox1.Text;
+
+
+            /*--------------配置文件保存文件路径---------------*/
+            string str = Path.GetDirectoryName(FilepathtextBox1.Text);
+            
+            string str02 = str + "/"+"SysConfigParameterSave.xml";//参数保存路径
+
+            FileSavePath = str02;
+            
+            SyscoonfigPathtextBox1.Text = str02;
+
+            /*--------------配置文件读取文件路径---------------*/
+
+            SysConfigPath = str02;
+          
+
+
+
+
+        }
+
+        private void FilepathtextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void button2_Click(object sender, EventArgs e)//确定按钮
+        {
+            startup();
+
+            this.Close();
+        }
+
+        private void FileChangeForm1_Load(object sender, EventArgs e)
+        {
+
+            this.ControlBox = false;
+            
+               
+           
+           
+        }
+
+        private void startup()
+        {
+
+
+
+
+
+            GuanLiForm1.FileOrderPath01 = FileOrderPath;    //浏览新路径时候有效
+            GuanLiForm1.FileSavePath01 = FileSavePath;     //浏览新路径时候有效
+            GuanLiForm1.SysConfigPath01 = SysConfigPath;  //浏览新路径时候有效
+            GuanLiForm1.SysConfigSavePathXml01 = SysConfigSavePathXml;//浏览新路径时候有效
+            MessageBox.Show("FileOrderPath01:" + GuanLiForm1.FileOrderPath01);
+            MessageBox.Show("FileSavePath01:" + GuanLiForm1.FileSavePath01);
+            MessageBox.Show("SysConfigPath01:" + GuanLiForm1.SysConfigPath01);
+            MessageBox.Show("SysConfigPath01:" + GuanLiForm1.SysConfigSavePathXml01);
+            CreatXMLConfigFile_INIT_07();
+        }
+        private void CreatXMLConfigFile_INIT_07()//创建系统XML配置文件
+        {
+            XmlDocument xmldoc;
+
+            XmlElement xmlelem;
+
+            xmldoc = new XmlDocument();//声明xml格式的 xmldoc文件
+            //加入XML的声明段落,<?xml version="1.0" encoding="gb2312"?>
+            XmlDeclaration xmldecl;
+            xmldecl = xmldoc.CreateXmlDeclaration("1.0", "gb2312", null);
+            xmldoc.AppendChild(xmldecl);
+
+            //加入一个根元素
+            xmlelem = xmldoc.CreateElement("", "Employees", "");
+
+            xmldoc.AppendChild(xmlelem);
+            //加入另外一个元素
+            //for (int i = 0; i < 99; i++)
+            //  if (UserName01[i] != null && UserName01[i + 1] == null)
+            // {
+
+            //}
+            XmlNode root01 = xmldoc.SelectSingleNode("Employees");//查找<Employees>
+            XmlElement xe12 = xmldoc.CreateElement("SysConfigSavePathXml");//创建一个<Node>节点
+            xe12.SetAttribute("FileOrderPath", FileOrderPath);//设置该节点genre属性
+            xe12.SetAttribute("FileSavePath", FileSavePath);//设置该节点ISBN属性
+            xe12.SetAttribute("SysConfigPath", SysConfigPath);//设置该节点ISBN属性
+            root01.AppendChild(xe12);//添加到<Employees>节点中
+
+
+
+            xmldoc.Save(SysConfigSavePathXml);
+
+
+
+        }
+
+        private void ReadXMLConfigFile_INIT_07()//创建系统XML配置文件
+        {
+            
+
+            if (true)//判断
+            {
+
+                
+                XmlDocument doc = new XmlDocument();
+
+                doc.Load(SysConfigSavePathXml);    //加载Xml文件,全路径  
+
+
+                XmlElement rootNodes = doc.DocumentElement;   //获取根节点  
+                XmlNodeList PointNodes = rootNodes.GetElementsByTagName("SysConfigSavePathXml"); //获取节点名字
+                foreach (XmlNode node in PointNodes)
+                {
+                     ArreyIndex01 = ((XmlElement)node).GetAttribute("FileOrderPath");   //获取UserName属性值
+                    ArreyIndex03 = ((XmlElement)node).GetAttribute("FileSavePath");   //获取UserName属性值
+                    ArreyIndex02 = ((XmlElement)node).GetAttribute("SysConfigPath");
+
+                }
+
+
+                FileOrderPath = ArreyIndex01;
+                FileSavePath = ArreyIndex03;
+                SysConfigPath = ArreyIndex02;
+                FilepathtextBox1.Text = ArreyIndex01;
+                SyscoonfigPathtextBox1.Text = ArreyIndex02;
+
+               
+            }
+        }
+
+
+
+    }
+}
