@@ -1,0 +1,71 @@
+Form1代码
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace SuiJiShu
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+       
+         
+        private void button1_Click(object sender, EventArgs e)
+        {
+            int iSeed ;
+            int Times = 0;
+            int b = 0;
+            if (this.textBox2.Text != "")
+            {
+                  iSeed = int.Parse(this.textBox2.Text);
+            
+                  if (Times < iSeed)
+                     {
+                       Times = Times + 1;
+                       Random ro = new Random();
+                         //long tick = DateTime.Now.Ticks;
+                         //Random ran = new Random((int)(tick & 0xffffffffL) | (int)(tick >> 32));
+                       int a = ro.Next(1, iSeed);
+                       this.textBox1.Text = a.ToString();
+                       
+                       if(b!=a)
+
+                        {
+                        b = a;
+                        }
+                        else
+                       {
+                        MessageBox.Show("随机数重复，点击按钮重新生成！");
+                        }
+                     }
+                else
+                   {
+                    MessageBox.Show("随机数最大循环次数以达到！请结束随机循环或者重置随机数最大范围值！");
+                   }
+            }
+            else
+            {
+                MessageBox.Show("请输入随机数循环最大值！默认值为10.");
+                iSeed = 10;
+                textBox2.Text = iSeed.ToString();
+            }
+
+
+
+
+
+
+
+        }
+    }
+}
+
