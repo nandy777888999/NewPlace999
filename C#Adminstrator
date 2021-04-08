@@ -1,0 +1,269 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop.Excel;
+using System.IO;
+using System.Reflection;
+using System.Xml;
+
+namespace WindowsFormsApplication1
+{
+   
+    public partial class GuanLiForm1 : System.Windows.Forms.Form
+    {
+
+        public static string FileOrderPath01;//订单路径
+        public static string FileSavePath01;//保存文件路径
+        public static string SysConfigPath01;//系统配置文件读取路径
+        public static string SysConfigSavePathXml01;//文件路径xml保存的文件路径
+
+        public static string[] UserName01 = new string[100];
+        public static string[] PassWord01 = new string[100];
+        public static string[] Admin01 = new string[10];
+        public static string[] AdminPwd01 = new string[10];
+
+        public static int YongHuArreyIndex01;
+        public static int GuanLiyuanArreyIndex01;
+        public static int ArreyIndexValue01=0;//初始化赋值
+
+        public static int NewUserNameIndex01;//新用户元素值
+        public static int NewAdminNameIndex01;//新用户元素值
+        string ArreyUserIndex;
+        string ArreyAdminIndex;
+        public GuanLiForm1()
+        {
+            InitializeComponent();
+        }
+
+        private void GaiMingButton_Click(object sender, EventArgs e)
+        {
+            GaiguanliContentForm form2 = new GaiguanliContentForm();
+            form2.Show();
+        }
+
+        private void button1_Click(object sender, EventArgs e)//确定关闭
+        {
+           
+            this.Close();
+        }
+
+       
+
+        private void Zengyonhubutton_Click(object sender, EventArgs e)
+        {
+            ZengJiaYHForm1 form3 = new ZengJiaYHForm1();
+            form3.Show();
+        }
+
+        private void Gaiyonghubutton_Click(object sender, EventArgs e)
+        {
+            GaiYHMMForm1 form4 = new GaiYHMMForm1();
+            form4.Show();
+        }
+
+        private void GuanLiForm1_Load(object sender, EventArgs e)
+        {
+            this.ControlBox = false;
+
+            for (int i=0;i < 99; i++)
+            {
+                UserName01[i] = null;
+                PassWord01[i] = null;
+            }
+            
+
+            /*--------------系统文件路径配置---------*/
+        FileOrderPath01= FileChangeForm1.FileOrderPath;
+        FileSavePath01= FileChangeForm1.FileSavePath;
+        SysConfigPath01= FileChangeForm1.SysConfigPath;
+
+            /*--------------登录名称和密码赋值---------*/
+            YongHuArreyIndex01 = MainLoginForm.YongHuArreyIndex;
+        GuanLiyuanArreyIndex01 = MainLoginForm.YongHuArreyIndex;
+        UserName01[YongHuArreyIndex01] = MainLoginForm.UserName[YongHuArreyIndex01];
+        PassWord01[YongHuArreyIndex01] = MainLoginForm.UserName[YongHuArreyIndex01];
+        Admin01[YongHuArreyIndex01] = MainLoginForm.Admin[GuanLiyuanArreyIndex01];
+        AdminPwd01[YongHuArreyIndex01] = MainLoginForm.AdminPwd[GuanLiyuanArreyIndex01];
+
+            /*--------------新用户数组地址---------*/
+            
+            MainLoginForm.NewUserNameIndex00= NewUserNameIndex01;
+
+        }
+
+        private void FilechangeButton_Click(object sender, EventArgs e)
+        {
+            FileChangeForm1 form5 = new FileChangeForm1();
+            form5.Show();
+        }
+
+        private void GaiMibutton_Click(object sender, EventArgs e)
+        {
+            GaiGLMMForm form6 = new GaiGLMMForm();
+            form6.Show(); 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)//初始化
+        {
+           
+        }
+
+        private void sys_INIT()//初始化
+        {
+            ReadXMLConfigFile_INIT();
+            CreatXMLConfigFile_INIT();
+        }
+
+        private void ReadXMLConfigFile_INIT()//创建系统XML配置文件
+        {
+            if(true)//判断
+            {
+                XmlDocument doc = new XmlDocument();
+              
+                doc.Load(SysConfigPath01);    //加载Xml文件,全路径  
+               
+                
+                    XmlElement rootNodes = doc.DocumentElement;   //获取根节点  
+                    XmlNodeList PointNodes = rootNodes.GetElementsByTagName("IndexValue"); //获取节点名字
+                    foreach (XmlNode node in PointNodes)
+                    {
+                         ArreyUserIndex = ((XmlElement)node).GetAttribute("Value");   //获取UserName属性数组下标值
+                         NewUserNameIndex01 = int.Parse(ArreyUserIndex);
+                    }
+                XmlNodeList PointNodes12 = rootNodes.GetElementsByTagName("AdminIndexValue"); //获取节点名字
+                foreach (XmlNode node in PointNodes12)
+                {
+                    ArreyAdminIndex= ((XmlElement)node).GetAttribute("AdminValue");   //获取AdminName属性数组下标值
+                    NewAdminNameIndex01 = int.Parse(ArreyAdminIndex);
+                }
+
+                MessageBox.Show("初始化已经完成！请继续操作！！" + NewUserNameIndex01+"@"+ NewAdminNameIndex01);
+
+            }
+            /*------------------------------------------------------------------------------------------------------
+            else
+            {
+                MessageBox.Show("文件存储路径没有设置，请先设置文件路径！！！");
+            }
+
+           -----------------------------------------------------------------------------------------------*/
+        }
+        private void CreatXMLConfigFile_INIT()//创建系统XML配置文件
+        {
+            XmlDocument xmldoc;
+           
+            XmlElement xmlelem;
+
+            xmldoc = new XmlDocument();//声明xml格式的 xmldoc文件
+            //加入XML的声明段落,<?xml version="1.0" encoding="gb2312"?>
+            XmlDeclaration xmldecl;
+            xmldecl = xmldoc.CreateXmlDeclaration("1.0", "gb2312", null);
+            xmldoc.AppendChild(xmldecl);
+
+            //加入一个根元素
+            xmlelem = xmldoc.CreateElement("", "Employees", "");
+           
+            xmldoc.AppendChild(xmlelem);
+            
+            XmlNode root01 = xmldoc.SelectSingleNode("Employees");//查找<Employees>
+
+            XmlNode root = xmldoc.SelectSingleNode("Employees");//查找<Employees>
+            XmlElement xe1 = xmldoc.CreateElement("IndexValue");//创建一个<Node>节点
+
+            xe1.SetAttribute("Value", NewUserNameIndex01.ToString());//设置该节点Value通过ArreyIndexValue01.ToString()赋值0属性
+            root.AppendChild(xe1);//添加到<Employees>节点中
+
+            //UserName01[0] = "admin";
+            //PassWord01[0] = "admin";
+            //Admin[0] = "admin";
+           // AdminPwd[0] = "admin";
+
+
+
+            XmlElement xe12 = xmldoc.CreateElement("USER" + "0");//创建一个<Node>节点
+            xe12.SetAttribute("UserName", "nandy");//设置该节点genre属性
+            xe12.SetAttribute("PassWord", "123456");//设置该节点ISBN属性
+            root01.AppendChild(xe12);//添加到<Employees>节点中
+
+            
+            XmlElement xe14 = xmldoc.CreateElement("AdminIndexValue");//创建一个<Node>节点
+         xe14.SetAttribute("AdminValue", NewAdminNameIndex01.ToString());//设置该节点Value通过ArreyIndexValue01.ToString()赋值0属性
+            root.AppendChild(xe14);//添加到<Employees>节点中
+
+
+            XmlElement xe13 = xmldoc.CreateElement("Admin" + "0");//创建一个<Node>节点
+            xe13.SetAttribute("Admin", "admin");//设置该节点genre属性
+            xe13.SetAttribute("AdminPwd", "admin");//设置该节点ISBN属性
+            root01.AppendChild(xe13);//添加到<Employees>节点中
+
+            xmldoc.Save(SysConfigPath01);
+
+
+         
+        }
+
+        private void button4_Click(object sender, EventArgs e)//首机配置
+        {
+
+
+
+
+            if (true)//判断
+            {
+                XmlDocument xmldoc;
+              
+                XmlElement xmlelem;
+
+                xmldoc = new XmlDocument();//声明xml格式的 xmldoc文件
+                                           //加入XML的声明段落,<?xml version="1.0" encoding="gb2312"?>
+                XmlDeclaration xmldecl;
+                xmldecl = xmldoc.CreateXmlDeclaration("1.0", "gb2312", null);
+                xmldoc.AppendChild(xmldecl);
+                //加入一个根元素
+                xmlelem = xmldoc.CreateElement("", "Employees", "");
+                xmldoc.AppendChild(xmlelem);
+
+                //加入另外一个元素
+                XmlNode root = xmldoc.SelectSingleNode("Employees");//查找<Employees>
+                XmlElement xe1 = xmldoc.CreateElement("IndexValue");//创建一个<Node>节点
+                
+                xe1.SetAttribute("Value", ArreyIndexValue01.ToString());//设置该节点Value通过ArreyIndexValue01.ToString()赋值0属性
+                root.AppendChild(xe1);//添加到<Employees>节点中
+
+                XmlElement xe41 = xmldoc.CreateElement("AdminIndexValue");//创建一个<Node>节点
+                xe41.SetAttribute("AdminValue", ArreyIndexValue01.ToString());//设置该节点Value通过ArreyIndexValue01.ToString()赋值0属性
+                root.AppendChild(xe41);//添加到<Employees>节点中
+
+                MessageBox.Show("::::" + FileSavePath01);
+                xmldoc.Save(SysConfigPath01);
+            }
+            /*-------------------------------------------------------------------------------------------
+            else
+            {
+                MessageBox.Show("文件存储路径没有设置，请先设置文件路径！！！");
+            }
+            ---------------------------------------------------------------------------------*/
+
+            sys_INIT();//初始化     
+        }
+    }
+}
+
+ 
