@@ -1,0 +1,336 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Microsoft.Office.Core;
+using Microsoft.Office.Interop.Excel;
+using System.IO;
+using System.Reflection;
+using System.Xml;
+
+namespace WindowsFormsApplication1
+{
+    public partial class MainLoginForm : System.Windows.Forms.Form
+    {
+        public static string[] UserName = new string[100];
+        public static string[] PassWord = new string[100];
+        public static string[] Admin = new string[10];
+        public static string[] AdminPwd = new string[10];
+
+        public static string[] NOWUserName = new string[100];//目前登录用户
+        public static string[] NOWAdminName = new string[100];//目前登录密码
+
+        public static string FileOrderPath00;//订单路径
+        public static string FileSavePath00;//保存文件路径
+        public static string SysConfigPath00;//系统配置文件读取路径
+        public static string SysConfigSavePathXml00;//文件路径xml保存的文件路径
+
+        public static int YongHuArreyIndex;//用户数组中元素值
+        public static int GuanLiyuanArreyIndex;//管理员数组中元素值
+        public static string FilePath = null;  //文件路径
+        public static int NewUserNameIndex00;//新用户元素值
+        public static int NewAdminNameIndex00;
+
+        public static int Reset;   //重置标志
+        public static string SuperAdmin = "superadmin";//超级用户密码
+        public static string SuperPwd = "19216811";
+        int loginTimes = 0;
+        public MainLoginForm()
+        {
+            InitializeComponent();
+            ReadXMLConfigFile_INIT_00();//读取本地路径保存XML
+            StartPosition = FormStartPosition.CenterScreen;
+            JiaZai();
+        }
+
+        private void JiaZai()
+        {
+            
+                ReadXMLConfigFile_00();//读取远程参数保存XML
+            
+           
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+
+            this.ControlBox = false;
+           
+            this.Width = 1000;
+            this.Height = 600;
+         
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+           
+
+
+        }
+
+
+        private void EnterButton_Click(object sender, EventArgs e)
+        {
+
+            string UserNameTextboxText = UserNameTextbox.Text;
+            string PasswordTextboxText = PasswordTextbox.Text;
+            int Flag = 0;//判断标准
+
+            if (loginTimes < 3)
+            {
+                MessageBox.Show(UserNameTextbox.Text + UserName[1] + PasswordTextbox.Text + PassWord[1]);
+                for (int j = 0; j < 99; j++)
+                {
+
+                    if (UserNameTextbox.Text == UserName[j] && PasswordTextbox.Text == PassWord[j])
+                    {
+                        Flag = 1;//标志位置1.
+                        YongHuArreyIndex = j;
+                        NOWUserName[YongHuArreyIndex] = UserName[j];
+                        //MessageBox.Show("登陆成功！");
+                        SuccessForm successform = new SuccessForm();
+                        successform.Show();
+                        UserNameTextbox.Text = null;
+                        PasswordTextbox.Text = null;
+                        //this.Close();
+                        break;
+                    }
+
+                }
+            }
+            if (Flag == 0)
+            {
+                if (loginTimes < 3)
+                {
+                    loginTimes = loginTimes + 1;
+                    ErroeReportForm errorform = new ErroeReportForm();//新窗体
+                    errorform.Show();  //报错信息对话框
+                                       // UserNameTextbox.Text = null;
+                    PasswordTextbox.Text = null;
+                }
+
+
+                else
+                {
+                    ErrorShutForm errorshutform = new ErrorShutForm();//新窗体
+                    errorshutform.Show();  //报错信息对话框
+                                           // UserNameTextbox.Text = null;
+                    PasswordTextbox.Text = null;
+                    loginTimes = 0;
+
+                }
+            }
+
+        }
+
+
+            
+       
+     
+
+        private void CencelButton_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void GuanLiButton_Click(object sender, EventArgs e)
+        {
+            int AdminFLag = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                if (UserNameTextbox.Text == Admin[i] && PasswordTextbox.Text == AdminPwd[i])
+                {
+                    AdminFLag = 1;
+                    GuanLiyuanArreyIndex = i;
+                    NOWAdminName[GuanLiyuanArreyIndex] = Admin[i];
+                    //MessageBox.Show("登陆成功！");
+                    GuanLiForm1 GuanLiForm = new GuanLiForm1();
+                    GuanLiForm.Show();
+                    UserNameTextbox.Text = null;
+                    PasswordTextbox.Text = null;
+                    //this.Close();
+                    break;
+                }
+            }
+            if (AdminFLag == 0)
+            {
+
+                ErroeReportForm errorform = new ErroeReportForm();//新窗体
+                errorform.Show();  //报错信息对话框
+                                   // UserNameTextbox.Text = null;
+                PasswordTextbox.Text = null;
+
+
+            }
+        }
+
+        
+
+        private void SuoDingButton_Click(object sender, EventArgs e)
+        {
+            JieSuoForm1 resetform = new JieSuoForm1();//新窗体
+            resetform.Show();  //报错信息对话框
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void OpenExcel(string strFileName)
+        {
+
+            Microsoft.Office.Interop.Excel.Application NewWorkApp = new Microsoft.Office.Interop.Excel.Application();//引用函数
+            object Missing = System.Reflection.Missing.Value;
+
+            if (NewWorkApp == null)
+            {
+                MessageBox.Show("<script>alert('Can't access excel')</script>");
+            }
+
+            else
+            {
+                NewWorkApp.Visible = true;//EXCEL是否可见
+                NewWorkApp.UserControl = true;
+                // 以只读的形式打开EXCEL文件
+                Workbook workbook = NewWorkApp.Application.Workbooks.Open(strFileName, Missing, true, Missing, Missing, Missing, Missing, Missing, Missing, true, Missing, Missing, Missing, Missing, Missing);
+                //取得第一个工作薄
+                Worksheet worksheet = (Worksheet)workbook.Worksheets.get_Item(1);
+                if(worksheet.Name=="scret01")
+                {
+                    MessageBox.Show("SHEET01已经打开");
+                }
+                
+
+                //取得总记录行数   (包括标题列)
+                int rowsint = worksheet.UsedRange.Cells.Rows.Count; //得到行数
+                int columnsint = worksheet.UsedRange.Cells.Columns.Count;//得到列数
+
+                //取得数据范围区域 (不包括标题列) 
+                Range rng1 = worksheet.Cells.get_Range("B2", "B" + rowsint);   //item
+            }
+
+        }
+
+
+
+
+
+        private void ReadXMLConfigFile_INIT_00()//创建系统XML配置文件
+        {
+            SysConfigSavePathXml00 = "D:/Program Files/OrderSystemFile/SysConfigSavePathXml.xml";
+
+            if (true)//判断
+            {
+
+
+                XmlDocument doc = new XmlDocument();
+
+                doc.Load(SysConfigSavePathXml00);    //加载Xml文件,全路径  
+
+
+                XmlElement rootNodes = doc.DocumentElement;   //获取根节点  
+                XmlNodeList PointNodes = rootNodes.GetElementsByTagName("SysConfigSavePathXml"); //获取节点名字
+                foreach (XmlNode node in PointNodes)
+                {
+               
+                    FileOrderPath00 = ((XmlElement)node).GetAttribute("FileOrderPath");   //获取UserName属性值
+                    FileSavePath00= ((XmlElement)node).GetAttribute(" FileSavePath");   //获取UserName属性值
+                    SysConfigPath00 = ((XmlElement)node).GetAttribute("SysConfigPath");
+                    //测试用 MessageBox.Show(SysConfigPath00);//测试用，其余无用
+                }
+
+
+            }
+        }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void ReadXMLConfigFile_00()//读取系统XML配置文件
+        {
+
+
+
+            if (true)//判断
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.Load(MainLoginForm.SysConfigPath00);    //加载Xml文件,全路径  
+                XmlElement rootNodes = doc.DocumentElement;   //获取根节点  
+
+                /*----------------------------读取IndexValue-----------------------*/
+                XmlNodeList PointNodes = rootNodes.GetElementsByTagName("IndexValue"); //获取节点名字
+                foreach (XmlNode node in PointNodes)
+                {
+                    string ArreyIndex = ((XmlElement)node).GetAttribute("Value");   //获取UserName属性值
+                    NewUserNameIndex00 = int.Parse(ArreyIndex);
+                }
+                //测试用  MessageBox.Show("NewUserNameIndex06读取完成！请继续操作！！" + NewUserNameIndex00);//测试用
+
+
+                /*----------------------------读取NewUserName-----------------------*/
+                for (int i = 0; i < NewUserNameIndex00 + 1; i++)
+                {
+
+                    UserName[i] = null;
+                    PassWord[i] = null;
+                    XmlNodeList PointNodes02 = rootNodes.GetElementsByTagName("USER" + i); //获取节点名字
+                    foreach (XmlNode node in PointNodes02)
+                    {
+
+                        UserName[i] = ((XmlElement)node).GetAttribute("UserName");   //获取UserName属性值
+                        PassWord[i] = ((XmlElement)node).GetAttribute("PassWord");   //获取UserName属性值
+                    }
+
+                }
+                  MessageBox.Show("UserName&PassWord读取完成！请继续操作！！" + UserName[1]+PassWord[1]);
+                //测试用 MessageBox.Show("UserName&PassWord读取完成！请继续操作！！" + NewUserNameIndex00);
+
+
+                /*----------------------------读取NewAdminNameIndex06-----------------------*/
+
+
+                XmlNodeList PointNodes12 = rootNodes.GetElementsByTagName("AdminIndexValue"); //获取节点名字
+                foreach (XmlNode node in PointNodes12)
+                {
+                    string ArreyIndex12 = ((XmlElement)node).GetAttribute("AdminValue");   //获取UserName属性值
+
+                    NewAdminNameIndex00 = int.Parse(ArreyIndex12);
+
+                }
+
+                //测试用 MessageBox.Show("NewAdminNameIndex06读取完成！请继续操作！！" + NewUserNameIndex00);//测试用
+
+                /*----------------------------读取NewAdminName-----------------------*/
+
+                for (int i = 0; i < NewAdminNameIndex00 + 1; i++)
+                {
+
+                    Admin[i] = null;
+                    AdminPwd[i] = null;
+                    XmlNodeList PointNodes82 = rootNodes.GetElementsByTagName("Admin" + i); //获取节点名字
+                    foreach (XmlNode node in PointNodes82)
+                    {
+                        Admin[i] = ((XmlElement)node).GetAttribute("Admin");   //获取UserName属性值
+                        AdminPwd[i] = ((XmlElement)node).GetAttribute("AdminPwd");   //获取UserName属性值
+                    }
+
+                }
+                MessageBox.Show("UserName读取完成！请继续操作！！" + Admin[0]+AdminPwd[0]);//测试用
+                //MessageBox.Show("UserName读取完成！请继续操作！！" + AdminPwd[0]);////测试用
+            }
+        }
+
+
+
+
+
+    }
+}
+
+ 
