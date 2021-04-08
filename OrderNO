@@ -1,0 +1,137 @@
+Program.CS代码
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Threading;
+
+
+namespace OrderHelper
+
+{
+    static class Program
+    {
+        /// <summary>
+        /// 应用程序的主入口点。
+        /// </summary>
+        [STAThread]
+
+
+
+        static void Main(string[] args)
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new OrderHelper());
+
+            var threads = new Thread[2]
+            {
+                new Thread(OrderHelper.GenerateId),
+                new Thread(OrderHelper.GenerateId),
+
+
+            };
+            foreach(var thread in threads)
+
+                {
+                thread.Start();
+                }
+
+            Console.Read();
+        }
+       
+        }
+    }
+
+
+OrderHelper-06.cs代码
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+
+namespace OrderHelper
+{
+    public partial class OrderHelper : Form
+    {
+
+        private static readonly object Locker = new object();
+        private static string _tempId = "";
+        private static object locker = new object();
+        private static int sn = 0;
+        public static string AB,BB;
+        public OrderHelper()
+        {
+            InitializeComponent();
+        }
+        
+
+        public static void GenerateId()
+        {
+            lock (Locker)
+            {
+                var orderId = "Wen" + DateTime.Now.ToString("yyyyMMddHHmmssff");
+
+                if (string.Equals(orderId, _tempId))
+                {
+
+                    MessageBox.Show("订单号重复,重新生成！");
+
+                    throw new Exception("订单号重复！");
+
+
+
+                }
+                _tempId = orderId;
+                Console.WriteLine(orderId);
+
+            }
+
+        }
+
+
+
+        public  string NextBillNumber()
+
+        {
+            lock (Locker)
+            {
+                if (sn == Convert.ToInt64(9999999999))
+                    sn = 0;
+                else
+                    sn++;
+                
+
+                return DateTime.Now.ToString("yyyyMMddHHmmssff") + sn.ToString().PadLeft(10, '0');
+               
+            }
+
+
+        }
+
+
+        public void button1_Click(object sender, EventArgs e)
+        {
+            string OrderHelper = new OrderHelper().NextBillNumber();
+            textBox1.Text = OrderHelper;
+
+
+
+
+
+
+
+
+        }
+    }
+
+
+}
